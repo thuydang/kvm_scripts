@@ -7,6 +7,11 @@ set -x
 
 DIR=$( cd "$( dirname "$0" )" && pwd )
 
+# Create directories
+mkdir -p images
+mkdir -p isos
+mkdir -p keys
+
 # SWITCH 1 Host only network 10.10.10.1
 BRIDGE=br0
 NETWORK=10.10.10.0
@@ -86,7 +91,7 @@ start_dnsmasq
 
 ISO=Fedora-20-x86_64-netinst.iso
 IMAGE=Fedora-x86_64-20-20141008-sda.qcow2
-SIZE=10G
+SIZE=300G
 
 qemu-img create -f qcow2 $DIR/images/$IMAGE $SIZE
 
