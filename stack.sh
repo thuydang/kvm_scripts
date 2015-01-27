@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Author thuydang.de@gmail.com
+# Inspired and learned from many open-sourced scripts
+
 set -x
 
 DIR=$( cd "$( dirname "$0" )" && pwd )
