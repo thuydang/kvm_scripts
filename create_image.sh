@@ -32,6 +32,9 @@ do_ifconfig() {
 	sudo ifconfig "$@"
 }
 
+do_iptables_restore() {
+	sudo iptables-restore "$@"
+}
 
 check_bridge_status() {
 
@@ -65,7 +68,7 @@ create_bridge() {
 create_bridge "$BRIDGE" "10.10.10.1" "255.255.255.0"
 
 do_dnsmasq() {
-	dnsmasq "$@"
+	sudo dnsmasq "$@"
 }
 
 start_dnsmasq() {
@@ -93,7 +96,7 @@ add_filter_rules() {
 
 sudo iptables -F
 sudo iptables -t nat -F
-#	cat <<EOF
+#cat <<EOF
 do_iptables_restore <<EOF
 *nat
 :PREROUTING ACCEPT [61:9671]
@@ -122,7 +125,7 @@ EOF
 
 ############
 test_nat() {
-	add_filter_rules "$SWITCH_0" "10.10.10.1" "255.255.255.0"
+	add_filter_rules "$BRIDGE" "10.10.10.1" "255.255.255.0"
 }
 
 ############
