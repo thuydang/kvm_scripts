@@ -65,6 +65,7 @@ do_dnsmasq() {
 }
 
 start_dnsmasq() {
+	sudo kill -9 $(cat /var/run/qemu-dnsmasq-$BRIDGE.pid)
 	do_dnsmasq \
 	--strict-order \
 	--except-interface=lo \
@@ -157,6 +158,7 @@ install_os() {
 }
 
 run_vm() {
+	prepare
 	sudo qemu-kvm -hda $DIR/images/$IMAGE -m 1024 -cdrom $DIR/isos/$ISO -boot order=c \
 		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:00:01 \
 		-netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup.sh,downscript=$DIR/scripts/qemu-ifdown.sh
