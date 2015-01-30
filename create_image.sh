@@ -7,11 +7,6 @@ set -x
 
 DIR=$( cd "$( dirname "$0" )" && pwd )
 
-# Create directories
-mkdir -p images
-mkdir -p isos
-mkdir -p keys
-
 # SWITCH 1 Host only network 10.10.10.1
 BRIDGE=br0
 NETWORK=10.10.10.0
@@ -64,8 +59,6 @@ create_bridge() {
 			echo "Bridge $1 already exist"
 		fi
 }
-
-create_bridge "$BRIDGE" "10.10.10.1" "255.255.255.0"
 
 do_dnsmasq() {
 	sudo dnsmasq "$@"
@@ -124,24 +117,63 @@ EOF
 }
 
 ############
-test_nat() {
+setup_nat() {
 	add_filter_rules "$BRIDGE" "10.10.10.1" "255.255.255.0"
 }
 
-############
-
-test_nat
-start_dnsmasq
-
-############ Create image #######################
-
+############ Steps #######################
 ISO=Fedora-20-x86_64-netinst.iso
-IMAGE=Fedora-x86_64-20-20141008-sda.qcow2
+IMAGE=Fedora-x86_64-20-300G-20150130-sda.qcow2
 SIZE=300G
 
-qemu-img create -f qcow2 $DIR/images/$IMAGE $SIZE
+create_dirs() {
+	# Create directories
+	mkdir -p images
+	mkdir -p isos
+	mkdir -p keys
+}
 
-sudo qemu-kvm -hda $DIR/images/$IMAGE -m 1024 -cdrom $DIR/isos/$ISO -boot order=d \
-	-device e1000,netdev=snet0,mac=DE:AD:BE:EF:00:01 \
-	-netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup.sh,downscript=$DIR/scripts/qemu-ifdown.sh
+prepare() {
+	create_dirs
+	create_bridge "$BRIDGE" "10.10.10.1" "255.255.255.0"
+	setup_nat
+	start_dnsmasq
+}
+
+create_image() {
+	qemu-img create -f qcow2 $DIR/images/$IMAGE $SIZE
+}
+
+install_os() {
+	if [ ! -f $DIR/isos/$ISO ]; then
+		    #echo "File not found!"
+				wget http://archive.fedoraproject.org/pub/fedora/linux/releases/20/Fedora/x86_64/iso/Fedora-20-x86_64-netinst.iso -O $DIR/isos/$ISO
+	fi
+
+	create_image
+	sudo qemu-kvm -hda $DIR/images/$IMAGE -m 1024 -cdrom $DIR/isos/$ISO -boot order=d \
+		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:00:01 \
+		-netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup.sh,downscript=$DIR/scripts/qemu-ifdown.sh
+}
+
+run_vm() {
+	sudo qemu-kvm -hda $DIR/images/$IMAGE -m 1024 -cdrom $DIR/isos/$ISO -boot order=c \
+		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:00:01 \
+		-netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup.sh,downscript=$DIR/scripts/qemu-ifdown.sh
+}
+############ Main #######################
+
+case $1 in
+	prepare)
+		prepare
+		;;
+	install)
+		install_os
+		;;
+	run)
+		run_vm
+		;;
+	*)
+	echo "Usage: $(basename $0) (prepare | install | run)"
+esac
 
