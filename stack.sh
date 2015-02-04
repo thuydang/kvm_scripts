@@ -183,10 +183,11 @@ test_controller_vm () {
 
 test_compute_vm () {
 	# Compute Node Fedora-x86_64-20-300G-20150130-sda.qcow2
+	#	-cpu host -enable-kvm \
 	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-compute1.qcow2 \
-		-cpu host \
+		-cpu core2duo,+vmx -enable-kvm \
 		-smp cpus=2 \
-		-m 3072 -vnc :1 \
+		-m 4000 -vnc :1 \
 		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:12:04 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
 		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:12:05 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
 		-device e1000,netdev=snet2,mac=DE:AD:BE:EF:12:06 -netdev tap,id=snet2,script=$DIR/scripts/qemu-ifup-stackbr2.sh &
