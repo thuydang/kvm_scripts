@@ -169,47 +169,47 @@ test_vm() {
 :
 }
 
-test_compute_vm () {
-	# Compute Node
-	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-20141106-sda-300G-compute1.qcow2 \
-		-cpu host \
-		-smp cpus=2 \
-		-m 3072 -vnc :1 \
-		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:11:04 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
-		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:11:05 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
-		-device e1000,netdev=snet2,mac=DE:AD:BE:EF:11:06 -netdev tap,id=snet2,script=$DIR/scripts/qemu-ifup-stackbr2.sh &
-
-}
-
 test_controller_vm () {
 	# Controller Node
 	#sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-20140618-sda-controller.qcow2
 	# the login account is cirros. The password is cubswin:)
-	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-20141106-sda-300G-controller.qcow2 \
-		-m 1024 -vnc :0 \
-		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:11:01 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
-		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:11:02 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
-		-device e1000,netdev=snet2,mac=DE:AD:BE:EF:11:03 -netdev tap,id=snet2,script=$DIR/scripts/qemu-ifup-stackbr2.sh &
+	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-controller.qcow2 \
+		-m 1500 -vnc :0 \
+		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:12:01 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
+		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:12:02 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
+		-device e1000,netdev=snet2,mac=DE:AD:BE:EF:12:03 -netdev tap,id=snet2,script=$DIR/scripts/qemu-ifup-stackbr2.sh &
+
+}
+
+test_compute_vm () {
+	# Compute Node Fedora-x86_64-20-300G-20150130-sda.qcow2
+	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-compute1.qcow2 \
+		-cpu host \
+		-smp cpus=2 \
+		-m 3072 -vnc :1 \
+		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:12:04 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
+		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:12:05 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
+		-device e1000,netdev=snet2,mac=DE:AD:BE:EF:12:06 -netdev tap,id=snet2,script=$DIR/scripts/qemu-ifup-stackbr2.sh &
 
 }
 
 test_network_vm () {
 
 	# Network Node
-	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-20141008-sda-network.qcow2 \
-		-m 512 -vnc :2 \
-		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:11:07 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
-		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:11:08 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
-		-device e1000,netdev=snet2,mac=DE:AD:BE:EF:11:09 -netdev tap,id=snet2,script=$DIR/scripts/qemu-ifup-stackbr2.sh &
+	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-network.qcow2 \
+		-m 1500 -vnc :2 \
+		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:12:07 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
+		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:12:08 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
+		-device e1000,netdev=snet2,mac=DE:AD:BE:EF:12:09 -netdev tap,id=snet2,script=$DIR/scripts/qemu-ifup-stackbr2.sh &
 }
 
 test_odl_vm () {
 	# Opendaylight Node
-	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-20141106-sda-300G-odl.qcow2 \
+	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-odl.qcow2 \
 		-m 2048 -vnc :3 \
-		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:11:10 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
-		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:11:11 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
-		-device e1000,netdev=snet2,mac=DE:AD:BE:EF:11:12 -netdev tap,id=snet2,script=$DIR/scripts/qemu-ifup-stackbr2.sh &
+		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:12:10 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
+		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:12:11 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
+		-device e1000,netdev=snet2,mac=DE:AD:BE:EF:12:12 -netdev tap,id=snet2,script=$DIR/scripts/qemu-ifup-stackbr2.sh &
 	
 }
 
@@ -218,14 +218,14 @@ test_odl_vm () {
 start_vms() {
 ## 2 Openstack nodes setup
 	test_controller_vm
-	sleep 5s
+	sleep 10s
 
 	test_compute_vm
 	sleep 5s
 
 ## not used
-	#test_network_vm
-	#sleep 2s
+	test_network_vm
+	sleep 2s
 
 	test_odl_vm
 	sleep 1s
