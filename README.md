@@ -3,6 +3,8 @@ Bash scripts for VMs management
 
 # These scripts are used to setup an Openstack infrastructure
 
+# This is just an exmaple to show how to add a picture here
+![alt tag](https://wiki.opendaylight.org/images/6/61/From-AD-SAL-to-MD-SAL.jpg)
 
 ## 0. Big steps:
 ### 0.1) Prepare Openstack Servers (Baremetals or VMs)
