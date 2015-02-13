@@ -1,0 +1,3 @@
+DEVICE="ens5"
+ONBOOT="yes"
+BOOTPROTO=dhcp

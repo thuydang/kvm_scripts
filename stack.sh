@@ -228,8 +228,9 @@ start_vms() {
 	test_network_vm
 	sleep 2s
 
-	test_odl_vm
-	sleep 1s
+## odl controller on host!
+	#test_odl_vm
+	#sleep 1s
 }
 
 ########### Main ###########
