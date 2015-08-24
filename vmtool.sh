@@ -38,11 +38,18 @@ check_bridge_status() {
 	modprobe tun
 
 	echo "Check existence... bridge device "$1
-	BR_STATUS=$(ifconfig | grep "$1")
+	if ! BR_STATUS=$(ifconfig | grep "$1"); then 
+		echo "Check existence... BR_STATUS not defined "$1
+		BR_STATUS=""
+	fi
+
 	#if [ test "${BR_STATUS}" = "" ]; then
 	if [ -z "$BR_STATUS" ]; then
+	#if [ "$BR_STATUS" = "" ]; then
+		echo "Check existence... bridge not exist "$1
 		return 1
 	else
+		echo "Check existence... bridge exist "$1
 		return 0
 	fi
 }
@@ -174,6 +181,9 @@ case $1 in
 		;;
 	run)
 		run_vm
+		;;
+	test)
+		check_bridge_status "br10"
 		;;
 	*)
 	echo "Usage: $(basename $0) (prepare | install | run)"
