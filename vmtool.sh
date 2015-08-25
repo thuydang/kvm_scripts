@@ -55,8 +55,8 @@ check_bridge_status() {
 }
 
 create_bridge() {
-	#if check_bridge_status "$1"
-	if true
+	# TODO: This return false under Ubuntu when 1 was returned.
+	if check_bridge_status "$1"
 		then 
 			do_brctl addbr "$1"	
 			do_brctl stp "$1" off
@@ -67,6 +67,11 @@ create_bridge() {
 			echo "Bridge $1 already exist"
 		fi
 }
+
+test() {
+:
+}
+
 
 do_dnsmasq() {
 	sudo dnsmasq "$@"
@@ -131,8 +136,9 @@ setup_nat() {
 }
 
 ############ Steps #######################
-ISO=Fedora-20-x86_64-netinst.iso
-IMAGE=Fedora-x86_64-20-300G-20150130-sda.qcow2
+#ISO=Fedora-20-x86_64-netinst.iso
+ISO=ubuntu-14.04.3-desktop-amd64.iso
+IMAGE=ubuntu-14.04-openstack.qcow2
 SIZE=300G
 
 create_dirs() {
@@ -168,7 +174,7 @@ install_os() {
 
 run_vm() {
 	prepare
-	sudo qemu-kvm -hda $DIR/images/$IMAGE -m 1024 -cdrom $DIR/isos/$ISO -boot order=c \
+	sudo kvm -hda $DIR/images/$IMAGE -m 1024 -cdrom $DIR/isos/$ISO -boot order=c \
 		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:00:01 \
 		-netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup.sh,downscript=$DIR/scripts/qemu-ifdown.sh
 }
@@ -185,7 +191,7 @@ case $1 in
 		run_vm
 		;;
 	test)
-		check_bridge_status "br10"
+		test	
 		;;
 	*)
 	echo "Usage: $(basename $0) (prepare | install | run)"

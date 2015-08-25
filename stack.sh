@@ -65,9 +65,14 @@ check_bridge_status() {
 	modprobe tun
 
 	echo "Check existence... bridge device "$1
-	BR_STATUS=$(ifconfig | grep "$1")
-	if [ test '${BR_STATUS}' = '' ]; then
+	if ! BR_STATUS=$(ifconfig | grep "$1"); then 
+		echo "Check existence... BR_STATUS not defined "$1
+		BR_STATUS=""
+	fi
+
+	#if [ test "${BR_STATUS}" = "" ]; then
 	#if [ -z "$BR_STATUS" ]; then
+	if [ "$BR_STATUS" = "" ]; then
 		return 1
 	else
 		return 0
@@ -173,8 +178,8 @@ test_controller_vm () {
 	# Controller Node
 	#sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-20140618-sda-controller.qcow2
 	# the login account is cirros. The password is cubswin:)
-	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-controller.qcow2 \
-		-m 1500 -vnc :0 \
+	sudo kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-controller.qcow2 \
+		-m 1000 -vnc :0 \
 		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:12:01 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
 		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:12:02 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
 		-device e1000,netdev=snet2,mac=DE:AD:BE:EF:12:03 -netdev tap,id=snet2,script=$DIR/scripts/qemu-ifup-stackbr2.sh &
@@ -184,10 +189,10 @@ test_controller_vm () {
 test_compute_vm () {
 	# Compute Node Fedora-x86_64-20-300G-20150130-sda.qcow2
 	#	-cpu host -enable-kvm \
-	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-compute1.qcow2 \
+	sudo kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-compute1.qcow2 \
 		-cpu core2duo,+vmx -enable-kvm \
 		-smp cpus=2 \
-		-m 4000 -vnc :1 \
+		-m 2000 -vnc :1 \
 		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:12:04 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
 		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:12:05 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
 		-device e1000,netdev=snet2,mac=DE:AD:BE:EF:12:06 -netdev tap,id=snet2,script=$DIR/scripts/qemu-ifup-stackbr2.sh &
@@ -197,7 +202,7 @@ test_compute_vm () {
 test_network_vm () {
 
 	# Network Node
-	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-network.qcow2 \
+	sudo kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-network.qcow2 \
 		-m 1500 -vnc :2 \
 		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:12:07 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
 		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:12:08 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
@@ -206,7 +211,7 @@ test_network_vm () {
 
 test_odl_vm () {
 	# Opendaylight Node
-	sudo qemu-kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-odl.qcow2 \
+	sudo kvm -hda $DIR/images/Fedora-x86_64-20-300G-20150130-sda-odl.qcow2 \
 		-m 2048 -vnc :3 \
 		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:12:10 -netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-stackbr0.sh \
 		-device e1000,netdev=snet1,mac=DE:AD:BE:EF:12:11 -netdev tap,id=snet1,script=$DIR/scripts/qemu-ifup-stackbr1.sh \
@@ -225,8 +230,8 @@ start_vms() {
 	sleep 5s
 
 ## not used
-	test_network_vm
-	sleep 2s
+	#test_network_vm
+	#sleep 2s
 
 ## odl controller on host!
 	#test_odl_vm
