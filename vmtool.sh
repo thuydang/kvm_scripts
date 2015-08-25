@@ -8,11 +8,11 @@ set -x
 DIR=$( cd "$( dirname "$0" )" && pwd )
 
 # SWITCH 1 Host only network 10.10.10.1
-BRIDGE=br0
-NETWORK=10.10.10.0
-GATEWAY=10.10.10.1
+BRIDGE=brtmp
+NETWORK=10.9.9.0
+GATEWAY=10.9.9.1
 NETMASK=255.255.255.0
-DHCPRANGE=10.10.10.2,10.10.10.254
+DHCPRANGE=10.9.9.2,10.9.9.254
 
 # Optionally parameters to enable PXE support
 TFTPROOT=
@@ -47,14 +47,27 @@ check_bridge_status() {
 	if [ -z "$BR_STATUS" ]; then
 	#if [ "$BR_STATUS" = "" ]; then
 		echo "Check existence... bridge not exist "$1
-		return 1
+		return 0
 	else
 		echo "Check existence... bridge exist "$1
-		return 0
+		return 1
 	fi
 }
 
+test() {
+	#if [ $(check_bridge_status "$1") -eq 1 ]
+	# this is true if the function exit code is 0!!
+	if check_bridge_status "$1"
+		then 
+			echo "Bridge will be created!"
+		else
+			echo "Bridge $1 already exist"
+		fi
+
+}
+
 create_bridge() {
+	#if [ $(check_bridge_status "$1") -eq 1 ]
 	if check_bridge_status "$1"
 		then 
 			do_brctl addbr "$1"	
@@ -126,12 +139,14 @@ EOF
 
 ############
 setup_nat() {
-	add_filter_rules "$BRIDGE" "10.10.10.1" "255.255.255.0"
+	add_filter_rules "$BRIDGE" "$GATEWAY" "255.255.255.0"
 }
 
 ############ Steps #######################
-ISO=Fedora-20-x86_64-netinst.iso
-IMAGE=Fedora-x86_64-20-300G-20150130-sda.qcow2
+#ISO=Fedora-20-x86_64-netinst.iso
+#IMAGE=Fedora-x86_64-20-300G-20150130-sda.qcow2
+ISO=CentOS-7-x86_64-NetInstall-1503.iso
+IMAGE=CentOS-7-x86_64-200G-sda.qcow2
 SIZE=300G
 
 create_dirs() {
@@ -143,7 +158,7 @@ create_dirs() {
 
 prepare() {
 	create_dirs
-	create_bridge "$BRIDGE" "10.10.10.1" "255.255.255.0"
+	create_bridge "$BRIDGE" "$GATEWAY" "255.255.255.0"
 	setup_nat
 	start_dnsmasq
 }
@@ -153,22 +168,28 @@ create_image() {
 }
 
 install_os() {
+	#if [ ! -d "$DIR/images" ] || [! BR_STATUS]; then
+	if [ ! -v BR_STATUS ]; then
+		prepare
+	fi
+
 	if [ ! -f $DIR/isos/$ISO ]; then
 		    #echo "File not found!"
-				wget http://archive.fedoraproject.org/pub/fedora/linux/releases/20/Fedora/x86_64/iso/Fedora-20-x86_64-netinst.iso -O $DIR/isos/$ISO
+				#wget http://archive.fedoraproject.org/pub/fedora/linux/releases/20/Fedora/x86_64/iso/Fedora-20-x86_64-netinst.iso -O $DIR/isos/$ISO
+				wget http://ftp.halifax.rwth-aachen.de/centos/7/isos/x86_64/CentOS-7-x86_64-NetInstall-1503.iso -O $DIR/isos/$ISO
 	fi
 
 	create_image
 	sudo qemu-kvm -hda $DIR/images/$IMAGE -m 1024 -cdrom $DIR/isos/$ISO -boot order=d \
 		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:00:01 \
-		-netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup.sh,downscript=$DIR/scripts/qemu-ifdown.sh
+		-netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-brtmp.sh,downscript=$DIR/scripts/qemu-ifdown-brtmp.sh
 }
 
 run_vm() {
 	prepare
 	sudo qemu-kvm -hda $DIR/images/$IMAGE -m 1024 -cdrom $DIR/isos/$ISO -boot order=c \
 		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:00:01 \
-		-netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup.sh,downscript=$DIR/scripts/qemu-ifdown.sh
+		-netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup-brtmp.sh,downscript=$DIR/scripts/qemu-ifdown-brtmp.sh
 }
 ############ Main #######################
 
@@ -183,7 +204,7 @@ case $1 in
 		run_vm
 		;;
 	test)
-		check_bridge_status "br10"
+		test "br10"
 		;;
 	*)
 	echo "Usage: $(basename $0) (prepare | install | run)"
