@@ -44,8 +44,8 @@ check_bridge_status() {
 	fi
 
 	#if [ test "${BR_STATUS}" = "" ]; then
-	if [ -z "$BR_STATUS" ]; then
-	#if [ "$BR_STATUS" = "" ]; then
+	#if [ -z "$BR_STATUS" ]; then
+	if [ "$BR_STATUS" = "" ]; then
 		echo "Check existence... bridge not exist "$1
 		return 1
 	else
@@ -55,7 +55,8 @@ check_bridge_status() {
 }
 
 create_bridge() {
-	if check_bridge_status "$1"
+	#if check_bridge_status "$1"
+	if true
 		then 
 			do_brctl addbr "$1"	
 			do_brctl stp "$1" off
@@ -159,7 +160,8 @@ install_os() {
 	fi
 
 	create_image
-	sudo qemu-kvm -hda $DIR/images/$IMAGE -m 1024 -cdrom $DIR/isos/$ISO -boot order=d \
+	# Ubuntu does not have qemu-kvm but kvm. TODO put an switch here.
+	sudo kvm -hda $DIR/images/$IMAGE -m 1024 -cdrom $DIR/isos/$ISO -boot order=d \
 		-device e1000,netdev=snet0,mac=DE:AD:BE:EF:00:01 \
 		-netdev tap,id=snet0,script=$DIR/scripts/qemu-ifup.sh,downscript=$DIR/scripts/qemu-ifdown.sh
 }
